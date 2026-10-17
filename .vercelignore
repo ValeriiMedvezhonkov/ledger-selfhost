@@ -1,0 +1,14 @@
+# What `vercel deploy` (npm run release) must never upload from this machine.
+# Production's settings live in Vercel's environment variables, not in files.
+.env*
+!.env.example
+backups/
+.certs/
+.playwright-mcp/
+.claude/
+.agents/
+design/
+*.pen
+pnpm-lock.yaml
+pnpm-workspace.yaml
+*.tsbuildinfo

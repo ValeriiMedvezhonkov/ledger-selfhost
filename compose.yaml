@@ -1,0 +1,85 @@
+# The whole stack: the app, its database, and a reverse proxy that obtains
+# and renews TLS certificates on its own.
+#
+#   docker compose up -d --build
+#
+# Values come from a .env file beside this one; see .env.example.
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ledger
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ledger
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    # Deliberately no ports section. The database is reachable only from the
+    # other containers, never from the internet.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ledger -d ledger"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://ledger:${POSTGRES_PASSWORD}@db:5432/ledger
+      AUTH_SECRET: ${AUTH_SECRET:?set AUTH_SECRET in .env}
+      AUTH_URL: ${APP_URL:?set APP_URL in .env}
+      AUTH_ALLOWED_EMAILS: ${AUTH_ALLOWED_EMAILS:?set AUTH_ALLOWED_EMAILS in .env}
+      CRON_SECRET: ${CRON_SECRET:?set CRON_SECRET in .env}
+      # Empty means the Apple Pay / Wallet webhook stays disabled.
+      WALLET_WEBHOOK_SECRET: ${WALLET_WEBHOOK_SECRET:-}
+      APP_BASE_CURRENCY: ${APP_BASE_CURRENCY:-EUR}
+    # Also no ports. Caddy is the only way in, which means the app is never
+    # reachable over plain HTTP.
+    expose:
+      - "3000"
+
+  # The admin scripts — accounts, passwords, starter categories, unlocking —
+  # need the TypeScript toolchain the slim app image leaves out, and a way to
+  # the database, which has no published port. This is the build stage of the
+  # same image, started only on demand and removed when the command exits:
+  #
+  #   docker compose run --rm tools npm run user:password
+  #
+  # The profile keeps `docker compose up` from starting it.
+  tools:
+    build:
+      context: .
+      target: build
+    profiles: ["tools"]
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://ledger:${POSTGRES_PASSWORD}@db:5432/ledger
+      AUTH_ALLOWED_EMAILS: ${AUTH_ALLOWED_EMAILS}
+      APP_BASE_CURRENCY: ${APP_BASE_CURRENCY:-EUR}
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN:?set APP_DOMAIN in .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+volumes:
+  db-data:
+  caddy-data:
+  caddy-config:

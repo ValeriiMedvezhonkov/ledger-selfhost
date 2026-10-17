@@ -1,0 +1,16 @@
+# Caddy obtains and renews a Let's Encrypt certificate for this domain by
+# itself. Port 80 stays open only because the ACME challenge uses it; every
+# request on it is redirected to HTTPS automatically.
+{$APP_DOMAIN} {
+	encode zstd gzip
+	reverse_proxy app:3000
+
+	# The app is private. Telling search engines about it costs nothing to add
+	# and is one less way for it to be found.
+	header {
+		X-Robots-Tag "noindex, nofollow"
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "same-origin"
+	}
+}

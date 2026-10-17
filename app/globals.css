@@ -1,0 +1,429 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "./ios.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: -apple-system, system-ui, BlinkMacSystemFont, "SF Pro Text", var(--font-inter), "Segoe UI", Roboto, sans-serif;
+  --font-mono: var(--font-geist-mono);
+  --font-heading: -apple-system, system-ui, BlinkMacSystemFont, "SF Pro Display", var(--font-inter), sans-serif;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-faint: var(--faint);
+  --color-primary-soft: var(--primary-soft);
+  --color-success-soft: var(--success-soft);
+  --color-destructive-soft: var(--destructive-soft);
+  --color-warning-soft: var(--warning-soft);
+  --color-scrim: var(--scrim);
+  --color-row-hover: var(--row-hover);
+  --color-hairline: var(--hairline);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  /*
+   * Stated outright rather than derived from --radius by multiplier. The scale
+   * is not geometric: a chip and a card round differently on purpose, and the
+   * old 0.6/0.8/1.4 factors could only approximate that. These are the values
+   * the design is drawn at.
+   */
+  --radius-sm: 0.5rem;    /*  8px — chips, inputs, icon buttons, menu items */
+  --radius-md: 0.75rem;   /* 12px — tiles, rows nested inside a card */
+  --radius-lg: 1.125rem;  /* 18px — cards: the default surface radius */
+  --radius-xl: 1.5rem;    /* 24px — full-bleed panels */
+  --radius-2xl: 1.75rem;  /* 28px — the top corners of a bottom sheet */
+  --radius-3xl: 2.25rem;
+  --radius-4xl: 2.75rem;
+}
+
+:root {
+  /*
+   * «Родное · день и ночь» — light. iOS grouped-table anatomy: a cool grey
+   * ground, white cards, systemIndigo as the accent. Indigo is the bridge to
+   * the dark theme's «Полночь» character, so the two themes read as one app.
+   */
+  --background: #f2f2f7;
+  --foreground: #000000;
+  --card: #ffffff;
+  --card-foreground: #000000;
+  --popover: #ffffff;
+  --popover-foreground: #000000;
+  --primary: #5e5ce6;
+  --primary-foreground: #ffffff;
+  --secondary: #e5e5ea;
+  --secondary-foreground: #000000;
+  --muted: #e5e5ea;
+  --muted-foreground: #3c3c4399;
+  --accent: #e5e5ea;
+  --accent-foreground: #000000;
+  --destructive: #ff383c;
+  --success: #34c759;
+  --warning: #ff8d28;
+  /*
+   * A third text tier below --muted-foreground, for meta that must recede
+   * without disappearing: table row counts, "9 дней", inactive tab labels.
+   */
+  --faint: #3c3c434d;
+  /*
+   * Tinted surfaces. Each is its accent at ~8% over the ground, resolved to an
+   * opaque hex so it composites identically on --background and on --card.
+   */
+  --primary-soft: #5e5ce61f;
+  --success-soft: #34c7591f;
+  --destructive-soft: #ff383c1f;
+  --warning-soft: #ff8d281f;
+  /* Behind sheets and dialogs. */
+  --scrim: #00000033;
+  /* Desktop table row under the pointer. */
+  --row-hover: #7676801f;
+  /* A divider that reads on both card and ground without picking a side. */
+  --hairline: #3c3c434a;
+  --border: #3c3c434a;
+  --input: #7676801f;
+  --ring: #5e5ce6;
+  --chart-1: #5e5ce6;
+  --chart-2: #ff5b8f;
+  --chart-3: #30b0c7;
+  --chart-4: #ff9f0a;
+  --chart-5: #34c759;
+  /* The card radius. Anything reading var(--radius) directly wants this. */
+  --radius: 1.125rem;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #111114;
+  --sidebar-primary: #5e5ce6;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #ececf1;
+  --sidebar-accent-foreground: #111114;
+  --sidebar-border: #3c3c434a;
+  --sidebar-ring: #8482ec;
+}
+
+.dark {
+  /*
+   * «Родное · день и ночь» — dark, the «Полночь» half. Deep blue-black rather
+   * than Apple's flat #000: the blue cast is the theme's character, and cards
+   * separate from the ground by hue as well as lightness.
+   */
+  --background: #000000;
+  --foreground: #ffffff;
+  --card: #1c1c1e;
+  --card-foreground: #ffffff;
+  --popover: #2c2c2e;
+  --popover-foreground: #ffffff;
+  --primary: #7d7aff;
+  --primary-foreground: #ffffff;
+  --secondary: #2c2c2e;
+  --secondary-foreground: #ffffff;
+  --muted: #2c2c2e;
+  --muted-foreground: #ebebf599;
+  --accent: #2c2c2e;
+  --accent-foreground: #ffffff;
+  --destructive: #ff4245;
+  --success: #30d158;
+  --warning: #ff9230;
+  --faint: #ebebf54d;
+  --primary-soft: #7d7aff33;
+  --success-soft: #30d15829;
+  --destructive-soft: #ff424529;
+  --warning-soft: #ff923029;
+  --scrim: #00000066;
+  --row-hover: #7676803d;
+  --hairline: #54545899;
+  --border: #54545899;
+  --input: #7676803d;
+  --ring: #7d7aff;
+  --chart-1: #8d8bff;
+  --chart-2: #ff5b8f;
+  --chart-3: #4cc9e0;
+  --chart-4: #ffb340;
+  --chart-5: #35de74;
+  --sidebar: #1c1c1e;
+  --sidebar-foreground: #eef0f6;
+  --sidebar-primary: #7d7aff;
+  --sidebar-primary-foreground: #12121f;
+  --sidebar-accent: #232636;
+  --sidebar-accent-foreground: #eef0f6;
+  --sidebar-border: #54545899;
+  --sidebar-ring: #6d6ad8;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  /*
+   * Tailwind v4 dropped the pointer cursor on buttons; without it half the
+   * app reads as inert text on desktop. Anything enabled and pressable gets
+   * the hand back.
+   */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  [role="option"],
+  label[for] {
+    cursor: pointer;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  /*
+   * No scrollbars, anywhere. On touch there never were any; on the desktop
+   * the drawn screens have none either, and every scrollable region in the
+   * app signals its overflow by content peeking, not by a gutter. Scrolling
+   * itself is untouched — wheel, trackpad and keyboard all still work.
+   */
+  * {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  *::-webkit-scrollbar {
+    display: none;
+  }
+  html {
+    @apply font-sans;
+  }
+
+  /*
+   * Base UI mounts each portal as a real <div>. When a popup portals into a
+   * dialog — which our comboboxes do, so their lists can be scrolled inside
+   * Radix's scroll lock — that div becomes a child of the dialog's grid. It has
+   * no height, but it still occupies a grid row and picks up the row gap, so
+   * opening a dropdown grew the dialog by 16px and, because the dialog is
+   * centred with a -50% translate, shifted it 8px up. It sprang back on close.
+   *
+   * `display: contents` makes the wrapper generate no box at all. The popup
+   * itself is positioned out of flow, so nothing about placement changes.
+   */
+  [data-base-ui-portal] {
+    display: contents;
+  }
+}
+
+/*
+ * Toasts.
+ *
+ * Unlayered on purpose: Sonner injects its own stylesheet, and rules inside an
+ * @layer would lose to it. Only the leading symbol carries the success/error
+ * colour, which keeps a failure legible without turning the whole surface
+ * into a block of red.
+ */
+/*
+ * iOS notification banner: Liquid Glass card with display-concentric
+ * corners, a soft lift, no border; a tinted circular symbol leading, then a
+ * bold title over a grey line. Full width with the sheets' 8pt margins on a
+ * phone (Sonner's mobile layout), 400pt wide on a larger screen.
+ */
+[data-sonner-toaster] {
+  --width: 400px;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-styled="true"] {
+  gap: 12px;
+  padding: 12px 16px 12px 12px;
+  min-height: 64px;
+  align-items: center;
+  border: 0;
+  border-radius: 26px;
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  backdrop-filter: blur(24px) saturate(190%);
+  box-shadow:
+    inset 0 0.5px 0 0.5px var(--glass-rim-low, rgb(255 255 255 / 0.3)),
+    0 10px 34px var(--glass-shadow),
+    0 1px 3px rgb(0 0 0 / 0.06);
+  font-family: inherit;
+}
+
+[data-sonner-toast] [data-title] {
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ios-label);
+}
+
+[data-sonner-toast] [data-description] {
+  font-size: 15px;
+  line-height: 20px;
+  color: var(--ios-label-2);
+}
+
+/* Sonner sizes its icon slot to 16px under [data-styled]; the banner's is 38. */
+[data-sonner-toaster] [data-sonner-toast][data-styled="true"] [data-icon] {
+  width: auto;
+  height: auto;
+  margin: 0;
+}
+
+.ios-banner-icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+/*
+ * The one loud element of «Родное · день и ночь»: the indigo→pink action
+ * gradient. Lives on the add button, the quick-add submit, and goal progress —
+ * and nowhere else, or it stops meaning "the main thing".
+ */
+.action-gradient {
+  background-image: linear-gradient(135deg, #5e5ce6, #e64980);
+  color: #ffffff;
+}
+.action-gradient:hover { filter: brightness(1.06); }
+
+/*
+ * Launch splash (boards L00 / D00): painted before hydration, removed by its
+ * inline script. An aurora behind, the two of you in glass bubbles, the
+ * wordmark and the loading dots.
+ */
+#splash {
+  position: fixed;
+  inset: 0;
+  /* Down to the real bottom edge on an iOS 26 launch (see --vp-fix). */
+  bottom: calc(-1 * var(--vp-fix, 0px));
+  z-index: 100;
+  /*
+   * Hidden by default and shown via a class on <html>, never by mutating the
+   * splash node itself: <html> carries suppressHydrationWarning (the theme
+   * script already rewrites it pre-hydration), so this is the one place a
+   * pre-paint script may write without React reporting a hydration mismatch.
+   */
+  display: none;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: var(--aurora-bg, var(--ios-bg));
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+html.splashing #splash { display: flex; }
+html.splash-out #splash { opacity: 0; pointer-events: none; }
+#splash .aurora i {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(90px);
+  opacity: 0.45;
+}
+#splash .aurora i:nth-child(1) { left: calc(50% - 140px); top: 19%; width: 300px; height: 300px; background: #5e5ce6; }
+#splash .aurora i:nth-child(2) { left: calc(50% + 40px); top: 60%; width: 320px; height: 320px; background: #ff2d55; opacity: 0.3; }
+#splash .aurora i:nth-child(3) { left: calc(50% - 280px); top: 71%; width: 300px; height: 300px; background: #00c3d0; opacity: 0.25; }
+#splash .aurora i:nth-child(4) { left: calc(50% + 20px); top: 9%; width: 260px; height: 260px; background: #ff8d28; opacity: 0.25; }
+.dark #splash .aurora i { opacity: 0.3; }
+#splash .face {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  text-align: center;
+}
+#splash .duo {
+  position: relative;
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+  animation: splash-breathe 1.8s ease-in-out infinite;
+}
+#splash .bubble {
+  display: grid;
+  place-items: center;
+  width: 96px;
+  height: 96px;
+  border-radius: 999px;
+  font-size: 48px;
+  line-height: 1;
+  background: rgb(255 255 255 / 0.55);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  backdrop-filter: blur(14px) saturate(180%);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.8), 0 8px 24px rgb(0 0 0 / 0.12);
+}
+.dark #splash .bubble {
+  background: rgb(44 44 46 / 0.55);
+  box-shadow: inset 0 0.5px 0 rgb(255 255 255 / 0.3), 0 8px 24px rgb(0 0 0 / 0.4);
+}
+#splash .euro {
+  position: absolute;
+  left: calc(50% - 17px);
+  bottom: -4px;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: var(--ios-tint);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  box-shadow: 0 0 0 3px var(--ios-bg);
+}
+#splash .word {
+  font-size: 42px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 51px;
+}
+#splash .tag {
+  margin-top: 6px;
+  font-size: 14px;
+  color: var(--ios-label-2);
+}
+@keyframes splash-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+#splash .dots {
+  position: absolute;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 72px);
+  display: flex;
+  gap: 8px;
+}
+#splash .dots i {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--ios-tint);
+  animation: splash-blink 1.2s ease-in-out infinite;
+}
+#splash .dots i:nth-child(2) { animation-delay: 0.2s; }
+#splash .dots i:nth-child(3) { animation-delay: 0.4s; }
+@keyframes splash-blink {
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #splash .dots i { animation: none; opacity: 0.7; }
+  #splash .duo { animation: none; }
+}

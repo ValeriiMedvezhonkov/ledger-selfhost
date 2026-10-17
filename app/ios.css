@@ -1,0 +1,760 @@
+/*
+ * iOS 27 · Liquid Glass — the design system the iOS27 boards in
+ * finance-tracker.pen are drawn in. 1 pt on the boards = 1 CSS px here.
+ *
+ * Imported after globals.css. Tokens are plain custom properties (themed by
+ * the `.dark` class next-themes puts on <html>), utilities live in
+ * @layer components so Tailwind classes can still override them, and the
+ * motion — scroll-linked titles, push/pop, sheets — is CSS wherever the
+ * platform can do it off the main thread.
+ */
+
+@font-face {
+  font-family: "Material Symbols Rounded";
+  font-style: normal;
+  font-weight: 100 700;
+  font-display: block;
+  src: url("/fonts/material-symbols-rounded.woff2?v=4") format("woff2");
+}
+
+:root {
+  /* System grouped-table palette (UIKit, iOS 26). */
+  --ios-bg: #f2f2f7;
+  --ios-bg-plain: #ffffff;
+  --ios-card: #ffffff;
+  --ios-card-2: #f2f2f7;
+  --ios-fill: #78788033;
+  --ios-fill-2: #78788029;
+  --ios-fill-3: #7676801f;
+  --ios-label: #000000;
+  --ios-label-2: #3c3c4399;
+  --ios-label-3: #3c3c434d;
+  --ios-sep: #3c3c434a;
+  --ios-tint: #5e5ce6;
+  --ios-tint-soft: #5e5ce61f;
+  --ios-blue: #0088ff;
+  --ios-green: #34c759;
+  --ios-red: #ff383c;
+  --ios-orange: #ff8d28;
+  --ios-yellow: #ffcc00;
+  --ios-pink: #ff2d55;
+  --ios-purple: #cb30e0;
+  --ios-teal: #00c3d0;
+  --ios-gray: #8e8e93;
+  --ios-scrim: #00000033;
+  --key: #ffffff;
+  /* Статистика's «гибкие» bars (the boards' $cat-transport). */
+  --stats-flexible: #1baf7a;
+
+  /* Liquid Glass, regular variant. */
+  --glass-tint: rgb(255 255 255 / 0.62);
+  --glass-tint-strong: rgb(255 255 255 / 0.82);
+  --glass-rim: rgb(255 255 255 / 0.85);
+  --glass-rim-low: rgb(255 255 255 / 0.25);
+  --glass-shadow: rgb(0 0 0 / 0.12);
+  --glass-blur: 14px;
+
+  /* Scroll edge effect (progressive fade under the status bar / tab bar). */
+  --edge: rgb(242 242 247 / 0.94);
+  --edge-0: rgb(242 242 247 / 0);
+
+  --ease-ios: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-spring: cubic-bezier(0.34, 1.36, 0.64, 1);
+  --dur-push: 420ms;
+  --dur-tab: 340ms;
+
+  /* The phone column. Everything fixed is laid out inside it. */
+  --col: min(100vw, 440px);
+  --col-left: max(0px, calc((100vw - 440px) / 2));
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  /* See the standalone block below; 0 everywhere else. */
+  --vp-fix: 0px;
+}
+
+/*
+ * --vp-fix stays 0. It compensated iOS 26's short-viewport launch bug
+ * (WebKit 301108), which only happens under the black-translucent status
+ * bar; with the opaque "default" bar (app/layout.tsx) the web view starts
+ * below the clock and 100dvh is right from launch. Forcing 100lvh there made
+ * every page ~62pt taller than the screen. The rules that read --vp-fix are
+ * kept, harmless at 0, in case the bar style ever goes back — the block was:
+ *   @media (display-mode: standalone) {
+ *     :root { --vp-fix: calc(100lvh - 100dvh); }
+ *     html, body { min-height: 100lvh; }
+ *   }
+ */
+
+.dark {
+  --ios-bg: #000000;
+  --ios-bg-plain: #000000;
+  --ios-card: #1c1c1e;
+  --ios-card-2: #2c2c2e;
+  --ios-fill: #7878805c;
+  --ios-fill-2: #78788052;
+  --ios-fill-3: #7676803d;
+  --ios-label: #ffffff;
+  --ios-label-2: #ebebf599;
+  --ios-label-3: #ebebf54d;
+  --ios-sep: #54545899;
+  --ios-tint: #7d7aff;
+  --ios-tint-soft: #7d7aff33;
+  --ios-blue: #0091ff;
+  --ios-green: #30d158;
+  --ios-red: #ff4245;
+  --ios-orange: #ff9230;
+  --ios-yellow: #ffd600;
+  --ios-pink: #ff375f;
+  --ios-purple: #db34f2;
+  --ios-teal: #00d2e0;
+  --ios-scrim: #00000066;
+  --key: #636366;
+  --stats-flexible: #28c48c;
+
+  --glass-tint: rgb(36 36 38 / 0.74);
+  --glass-tint-strong: rgb(44 44 46 / 0.82);
+  --glass-rim: rgb(255 255 255 / 0.3);
+  --glass-rim-low: rgb(255 255 255 / 0.08);
+  --glass-shadow: rgb(0 0 0 / 0.45);
+
+  --edge: rgb(0 0 0 / 0.94);
+  --edge-0: rgb(0 0 0 / 0);
+}
+
+@theme inline {
+  --color-ios-bg: var(--ios-bg);
+  --color-ios-card: var(--ios-card);
+  --color-ios-card-2: var(--ios-card-2);
+  --color-ios-fill: var(--ios-fill);
+  --color-ios-fill-2: var(--ios-fill-2);
+  --color-ios-fill-3: var(--ios-fill-3);
+  --color-label: var(--ios-label);
+  --color-label-2: var(--ios-label-2);
+  --color-label-3: var(--ios-label-3);
+  --color-sep: var(--ios-sep);
+  --color-tint: var(--ios-tint);
+  --color-tint-soft: var(--ios-tint-soft);
+  --color-ios-blue: var(--ios-blue);
+  --color-ios-green: var(--ios-green);
+  --color-ios-red: var(--ios-red);
+  --color-ios-orange: var(--ios-orange);
+  --color-ios-yellow: var(--ios-yellow);
+  --color-ios-pink: var(--ios-pink);
+  --color-ios-purple: var(--ios-purple);
+  --color-ios-teal: var(--ios-teal);
+  --color-ios-gray: var(--ios-gray);
+  --color-key: var(--key);
+}
+
+/* ---------------------------------------------------------------- type */
+
+html {
+  /*
+   * An installed app, not a page: no double-tap zoom (and no 300ms wait for
+   * one). Pinch is refused too — see components/no-zoom.tsx and the
+   * viewport's user-scalable=no.
+   */
+  touch-action: manipulation;
+  font-family:
+    -apple-system, system-ui, BlinkMacSystemFont, "SF Pro Text",
+    var(--font-inter), "Segoe UI", Roboto, sans-serif;
+  font-optical-sizing: auto;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/*
+ * No Safari link preview and no link dragging. Long-pressing a link in the
+ * installed app opened a web-page preview («Open / Add to Reading List /
+ * Copy Link / Share»), and long-press-and-drag lifted it as a draggable URL
+ * card (its icon's ligature name showing as text) — browser behaviour a
+ * native app does not have. Links and images only, so text fields keep their
+ * own callout (paste, select). components/ios/no-link-drag.tsx also cancels
+ * the drag itself.
+ */
+a,
+img {
+  -webkit-touch-callout: none;
+  -webkit-user-drag: none;
+}
+
+body {
+  background: var(--ios-bg);
+  color: var(--ios-label);
+  letter-spacing: -0.024em;
+}
+
+@layer components {
+  .sym {
+    font-family: "Material Symbols Rounded";
+    font-weight: 500;
+    font-style: normal;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    font-feature-settings: "liga";
+    -webkit-font-smoothing: antialiased;
+    font-variation-settings: "FILL" var(--sym-fill, 0), "opsz" 24;
+    user-select: none;
+    flex-shrink: 0;
+  }
+  .sym-fill {
+    --sym-fill: 1;
+  }
+
+  /* HIG type ramp, at the default Dynamic Type size. */
+  .t-large-title { font-size: 34px; line-height: 41px; font-weight: 700; letter-spacing: -0.026em; }
+  .t-title1 { font-size: 28px; line-height: 34px; font-weight: 700; letter-spacing: -0.022em; }
+  .t-title2 { font-size: 22px; line-height: 28px; font-weight: 700; letter-spacing: -0.022em; }
+  .t-title3 { font-size: 20px; line-height: 25px; font-weight: 700; letter-spacing: -0.024em; }
+  .t-headline { font-size: 17px; line-height: 22px; font-weight: 600; letter-spacing: -0.024em; }
+  .t-body { font-size: 17px; line-height: 22px; letter-spacing: -0.024em; }
+  .t-callout { font-size: 16px; line-height: 21px; letter-spacing: -0.02em; }
+  .t-subhead { font-size: 15px; line-height: 20px; letter-spacing: -0.016em; }
+  .t-footnote { font-size: 13px; line-height: 18px; letter-spacing: -0.006em; }
+  .t-caption { font-size: 12px; line-height: 16px; letter-spacing: 0; }
+  .t-caption2 { font-size: 11px; line-height: 13px; letter-spacing: 0.006em; }
+  .money { font-variant-numeric: tabular-nums; }
+
+  /* ------------------------------------------------------------- glass */
+
+  /*
+   * Liquid Glass, regular. Everything that floats above content (tab bar,
+   * toolbar buttons, menus, sheets at a partial detent) is made of this and
+   * nothing that sits *in* the content is — glass on glass is the one thing
+   * the HIG says never to do.
+   *
+   * Layers: a translucent tint over a blurred, saturated backdrop; a 1px
+   * specular rim brighter at the top-left (::before, masked to the border);
+   * a soft inner sheen; and a diffuse drop shadow. Chromium additionally
+   * bends the backdrop at the edges (see components/ios/liquid-lens.tsx);
+   * Safari cannot apply SVG filters to a backdrop, so there it is frosted
+   * glass with a lit rim — which at 48px is most of what the eye reads.
+   *
+   * Avoid putting .glass inside anything with filter/opacity<1/mask: those
+   * create a backdrop root and the blur would only see that ancestor.
+   */
+  .glass {
+    position: relative;
+    background: var(--glass-tint);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(190%);
+    backdrop-filter: var(--glass-lens, ) blur(var(--glass-blur)) saturate(190%);
+    box-shadow:
+      inset 0 0.5px 0 0.5px var(--glass-rim-low),
+      inset 0 10px 18px -12px rgb(255 255 255 / 0.18),
+      0 6px 22px var(--glass-shadow),
+      0 1px 3px rgb(0 0 0 / 0.06);
+  }
+  .glass::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    pointer-events: none;
+    background: linear-gradient(
+      135deg,
+      var(--glass-rim) 0%,
+      transparent 32%,
+      transparent 68%,
+      var(--glass-rim-low) 100%
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box exclude,
+      linear-gradient(#000 0 0);
+    mask:
+      linear-gradient(#000 0 0) content-box exclude,
+      linear-gradient(#000 0 0);
+  }
+  .glass-strong {
+    background: var(--glass-tint-strong);
+    --glass-blur: 24px;
+  }
+  /* Tinted glass: the «+» button, primary actions, the active filter chip. */
+  .glass-tinted {
+    background: color-mix(in srgb, var(--ios-tint) 88%, transparent);
+    color: #ffffff;
+    --glass-rim: rgb(255 255 255 / 0.55);
+    --glass-rim-low: rgb(255 255 255 / 0.18);
+  }
+  .glass-danger {
+    background: color-mix(in srgb, var(--ios-red) 90%, transparent);
+    color: #ffffff;
+  }
+
+  /* Pressing a glass control swells it, like the native lens does. */
+  .press {
+    transition:
+      transform 0.35s var(--ease-spring),
+      filter 0.2s ease;
+    will-change: transform;
+  }
+  .press:active {
+    transform: scale(1.08);
+    filter: brightness(1.06);
+    transition-duration: 0.12s;
+  }
+  .press-row:active {
+    background: var(--ios-fill-3);
+  }
+
+  /* ---------------------------------------------------- grouped lists */
+
+  .inset-group {
+    background: var(--ios-card);
+    border-radius: 26px;
+    overflow: clip;
+  }
+  /* The separator starts at the text, not at the icon tile. */
+  .row-sep {
+    box-shadow: inset 0 -0.5px 0 var(--ios-sep);
+  }
+  .inset-group > :last-child .row-sep,
+  .inset-group > :last-child.row-sep {
+    box-shadow: none;
+  }
+}
+
+/* ------------------------------------------------------- auth stage */
+
+/* Sign-in and verify: the panel sits where a thumb reaches it. */
+.auth-stage {
+  padding-bottom: max(40px, calc(var(--safe-bottom) + 43px));
+}
+
+/* -------------------------------------------- full-screen surfaces */
+
+/*
+ * The aurora's base tone (sign-in, verify, the lock screen, the splash).
+ *
+ * Safari 26 tints the strips behind the status bar and around its toolbar by
+ * sampling fixed elements at the screen edge, falling back to the page
+ * background. A transparent aurora layer left those strips the plain grey of
+ * the app's ground. A solid tone under the blurred discs — the lavender the
+ * discs average to at the top — gives Safari a colour that continues the
+ * gradient, and the page background follows while an aurora is on screen.
+ */
+:root {
+  --aurora-bg: #e2dbf5;
+}
+.dark {
+  --aurora-bg: #0e0b17;
+}
+.aurora-root {
+  background-color: var(--aurora-bg);
+}
+/*
+ * The top edge fades into the same tone the status-bar strip is painted
+ * (theme-color, see components/theme-color.tsx), so the gradient continues
+ * under the notch without a seam.
+ */
+.aurora-root::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 110px;
+  pointer-events: none;
+  background: linear-gradient(to bottom, var(--aurora-bg) 0%, transparent 100%);
+}
+html:has(.aurora-root),
+html:has(.aurora-root) body {
+  background-color: var(--aurora-bg);
+}
+/*
+ * Sign-in, verify and the lock screen fit on one screen: no rubber-band
+ * bounce. (Keyboard panning to a focused field is not overscroll, so it is
+ * unaffected.)
+ */
+html:has(.aurora-root),
+html:has(.aurora-root) body {
+  overscroll-behavior: none;
+}
+
+/* A page at least one screen tall — including the strip iOS 26 forgets. */
+.min-h-screen-ios {
+  min-height: calc(100dvh + var(--vp-fix));
+}
+
+/* `fixed inset-0`, reaching the real bottom edge on an iOS 26 launch. */
+.fixed-fill {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: calc(-1 * var(--vp-fix));
+}
+
+/* --------------------------------------------------- the phone column */
+
+/*
+ * Fixed chrome lives inside the 440px column, centred on wider screens: a
+ * desktop shows the phone UI, not a stretched one. The page itself scrolls
+ * the document — not an inner div — so iOS keeps its native scroll physics,
+ * status-bar tap-to-top and the toolbar-collapse behaviour of Safari.
+ */
+.ios-fixed {
+  position: fixed;
+  left: var(--col-left);
+  width: var(--col);
+}
+
+/* -------------------------------------------- scroll-linked navigation */
+
+/*
+ * The large title hands over to the inline one when the content scrolls,
+ * switched by the scroll hook's data-scrolled (components/ios/scroll-state)
+ * with a short fade, not a CSS scroll timeline. A scroll-timeline animation
+ * (and `will-change: transform`, which this used to carry) puts the title on
+ * a GPU layer of its own, and Safari draws such a layer blurred in the
+ * incoming screen of every page slide — the title arrived soft and sharpened
+ * when the slide ended (screen recording, frame by frame). Plain styles keep
+ * it in the page's own layer, sharp throughout.
+ */
+.nav-inline-title {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+[data-scrolled] .nav-inline-title {
+  opacity: 1;
+}
+.nav-large-title {
+  transform-origin: left bottom;
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease;
+}
+[data-scrolled] .nav-large-title {
+  opacity: 0;
+  transform: scale(0.94);
+}
+/* A screen arriving takes its title state at once, like the edge. */
+html[data-arriving] .nav-inline-title,
+html[data-arriving] .nav-large-title {
+  transition: none;
+}
+
+/*
+ * The scroll edge (blur + fade under the header) is off at rest and fades in
+ * once the content scrolls — driven by the scroll hook's data-scrolled, not a
+ * scroll timeline: Safari would leave a backdrop-filter layer blurring the
+ * large title at rest. `visibility` (not just opacity) switches the blur off
+ * entirely, and it stays below every header control (z-40 vs the header's 50).
+ */
+.nav-edge {
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.22s ease,
+    visibility 0s linear 0.22s,
+    -webkit-backdrop-filter 0s linear 0.22s,
+    backdrop-filter 0s linear 0.22s;
+}
+/*
+ * And no blur at all at rest, not only a hidden one: Safari paints a
+ * backdrop-filter layer into a view transition's snapshot even when it is
+ * visibility: hidden, so every push, pop and tab slide showed this band
+ * blurred over the header for the length of the slide, gone the moment it
+ * ended. The blur exists only while scrolled, and leaves after the fade.
+ * (Higher specificity than .scroll-edge-top, which sets the blur.)
+ */
+html .nav-edge {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+html[data-scrolled] .nav-edge {
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+/*
+ * During a page slide the edge layer is not drawn at all: Safari renders the
+ * incoming screen live, and no blur layer may sit over its title then.
+ */
+html:active-view-transition .nav-edge {
+  display: none;
+}
+/* A screen arriving takes its edge state at once (components/ios/scroll-state). */
+html[data-arriving] .nav-edge {
+  transition: none;
+}
+[data-scrolled] .nav-edge {
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity 0.22s ease,
+    visibility 0s,
+    -webkit-backdrop-filter 0s,
+    backdrop-filter 0s;
+}
+
+/*
+ * The scroll edge effect: content fades and softens as it slides under the
+ * status bar and the floating toolbar, instead of a hard bar edge.
+ */
+.scroll-edge-top {
+  pointer-events: none;
+  background: linear-gradient(to bottom, var(--edge) 0%, var(--edge) 35%, var(--edge-0) 100%);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  -webkit-mask: linear-gradient(to bottom, #000 45%, transparent 100%);
+  mask: linear-gradient(to bottom, #000 45%, transparent 100%);
+}
+.scroll-edge-bottom {
+  pointer-events: none;
+  background: linear-gradient(to top, var(--edge) 0%, var(--edge-0) 100%);
+}
+
+/* --------------------------------------------------- route transitions */
+
+/*
+ * Every navigation is a React transition, and React wraps every transition
+ * commit in a document view transition. So the default is that nothing
+ * animates: an untyped transition (refresh, browser back, a filter change,
+ * a sheet opening) swaps the screen in a frame. What moves is chosen by
+ * type — push and pop, the tab carousel — below. (The
+ * browser's own 420ms root crossfade used to run on every one of them,
+ * with the screen frozen behind it.)
+ */
+::view-transition {
+  pointer-events: none;
+}
+::view-transition-group(*),
+::view-transition-image-pair(*),
+::view-transition-old(*),
+::view-transition-new(*) {
+  animation: none;
+}
+
+/*
+ * Push / pop, as UIKit does it: the incoming screen slides the full width in
+ * from the trailing edge while the outgoing one drifts 30% the other way and
+ * dims; pop mirrors it. 420ms on cubic-bezier(.32,.72,0,1) is the critically
+ * damped spring (response 0.42) the M02 board specifies, flattened to a curve.
+ *
+ * Both animate the root snapshot — what is on screen — rather than a named
+ * page element: a page-sized snapshot of a long list is thousands of pixels
+ * tall at 3x and was not drawn on iPhone, so pushes showed no slide at all.
+ * Links carry `ios-push`; the back button runs `ios-pop`
+ * (components/ios/nav-stack). The tab bar has its own name and stays put.
+ */
+/*
+ * Slides are transform-only keyframes, so Safari runs them on the compositor.
+ * A keyframe that also animates box-shadow or filter cannot be, and the whole
+ * animation then ticks on the main thread — where the incoming screen (the
+ * charts on Статистика) is busy rendering, so the push froze and the screen
+ * just appeared (seen on iPhone; the pop, transform-only, slid fine). The
+ * edge shadow is static, and the outgoing screen's dimming is a separate
+ * animation that can stall without holding up the slide.
+ */
+html:active-view-transition-type(ios-push)::view-transition-old(root) {
+  animation:
+    ios-slide-to-left-30 var(--dur-push) var(--ease-ios) both,
+    ios-dim var(--dur-push) var(--ease-ios) both;
+}
+html:active-view-transition-type(ios-push)::view-transition-new(root) {
+  animation: ios-slide-from-right var(--dur-push) var(--ease-ios) both;
+  box-shadow: -10px 0 28px rgb(0 0 0 / 0.14);
+}
+html:active-view-transition-type(ios-pop)::view-transition-old(root) {
+  animation: ios-slide-to-right var(--dur-push) var(--ease-ios) both;
+  box-shadow: -10px 0 28px rgb(0 0 0 / 0.14);
+  z-index: 1;
+}
+html:active-view-transition-type(ios-pop)::view-transition-new(root) {
+  animation:
+    ios-slide-from-left-30 var(--dur-push) var(--ease-ios) both,
+    ios-dim var(--dur-push) var(--ease-ios) reverse both;
+}
+
+/*
+ * Tab switches slide like a carousel: both screens move the full width
+ * together, no dimming or parallax — sideways between peers, not deeper.
+ * Shorter than a push. The tab bar keeps its own name and stays put.
+ */
+html:active-view-transition-type(ios-tab-forward)::view-transition-old(root) {
+  animation: ios-slide-to-left var(--dur-tab) var(--ease-ios) both;
+}
+html:active-view-transition-type(ios-tab-forward)::view-transition-new(root) {
+  animation: ios-slide-from-right var(--dur-tab) var(--ease-ios) both;
+}
+html:active-view-transition-type(ios-tab-back)::view-transition-old(root) {
+  animation: ios-slide-to-right var(--dur-tab) var(--ease-ios) both;
+}
+html:active-view-transition-type(ios-tab-back)::view-transition-new(root) {
+  animation: ios-slide-from-left var(--dur-tab) var(--ease-ios) both;
+}
+@keyframes ios-slide-to-left {
+  from { transform: translateX(0); }
+  to { transform: translateX(-100%); }
+}
+@keyframes ios-slide-from-left {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes ios-slide-from-right {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+@keyframes ios-slide-to-left-30 {
+  from { transform: translateX(0); }
+  to { transform: translateX(-30%); }
+}
+@keyframes ios-slide-from-left-30 {
+  from { transform: translateX(-30%); }
+  to { transform: translateX(0); }
+}
+@keyframes ios-slide-to-right {
+  from { transform: translateX(0); }
+  to { transform: translateX(100%); }
+}
+@keyframes ios-dim {
+  to { filter: brightness(0.9); }
+}
+
+/* The tab bar never moves with the page. */
+::view-transition-group(ios-tabbar) {
+  z-index: 50;
+}
+::view-transition-old(ios-tabbar) {
+  display: none;
+}
+
+/*
+ * Reduce Motion keeps the push and pop — UIKit still slides screens with it
+ * on, and without the slide there is no telling deeper from back — but
+ * drops the parallax and dimming, and shortens the move.
+ */
+@media (prefers-reduced-motion: reduce) {
+  html:active-view-transition-type(ios-push)::view-transition-old(root),
+  html:active-view-transition-type(ios-pop)::view-transition-new(root) {
+    animation: none;
+  }
+  html:active-view-transition-type(ios-push)::view-transition-new(root),
+  html:active-view-transition-type(ios-pop)::view-transition-old(root) {
+    animation-duration: 280ms;
+  }
+  html:active-view-transition-type(ios-tab-forward)::view-transition-old(root),
+  html:active-view-transition-type(ios-tab-forward)::view-transition-new(root),
+  html:active-view-transition-type(ios-tab-back)::view-transition-old(root),
+  html:active-view-transition-type(ios-tab-back)::view-transition-new(root) {
+    animation: none;
+  }
+  .press,
+  .press:active {
+    transition: none;
+    transform: none;
+  }
+}
+
+/*
+ * Search mode: its field takes the tab bar's place at the bottom. Hidden,
+ * not display: none — the bar has a view-transition name, and a named
+ * element that stops being rendered mid-transition makes the browser skip
+ * the transition: the push into search was cut off after a frame.
+ */
+html[data-searching] nav[data-tabbar] {
+  visibility: hidden;
+  pointer-events: none;
+}
+/* Its glass too: Safari paints a hidden backdrop blur into transition snapshots. */
+html[data-searching] nav[data-tabbar] .glass {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+/* ------------------------------------------------------- swipe back */
+
+/*
+ * The full-width back gesture (components/ios/swipe-back): a frozen copy of
+ * the screen being left, dragged off the real previous screen. The sheet's
+ * transform makes it the containing block for the copy's fixed toolbar, so
+ * the toolbar travels with it. The tab bar is lifted above it, as it stays
+ * put during a native pop.
+ */
+.swipe-back {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  overflow: hidden;
+}
+.swipe-back-dim {
+  position: absolute;
+  inset: 0;
+  background: rgb(0 0 0 / 0.1);
+}
+.swipe-back-sheet {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--ios-bg);
+  box-shadow: -10px 0 28px rgb(0 0 0 / 0.14);
+  transform: translateX(0);
+  will-change: transform;
+}
+.swipe-back-page {
+  position: absolute;
+  left: 0;
+  right: 0;
+}
+html[data-swipe-back] nav[data-tabbar] {
+  z-index: 70;
+}
+
+/* -------------------------------------------------------------- sheets */
+
+/* Base UI Drawer: the page behind recedes while a sheet is up. */
+.ios-sheet-backdrop {
+  background: var(--ios-scrim);
+  opacity: calc(1 - var(--drawer-swipe-progress, 0));
+  transition: opacity 0.45s var(--ease-ios);
+}
+.ios-sheet-backdrop[data-starting-style],
+.ios-sheet-backdrop[data-ending-style] {
+  opacity: 0;
+}
+.ios-sheet {
+  transform: translateY(calc(var(--drawer-snap-point-offset, 0px) + var(--drawer-swipe-movement-y, 0px)));
+  transition: transform 0.5s var(--ease-ios);
+  will-change: transform;
+}
+.ios-sheet[data-swiping] {
+  transition: none;
+}
+.ios-sheet[data-starting-style],
+.ios-sheet[data-ending-style] {
+  transform: translateY(100%);
+}
+
+/* Menus grow out of the control that opened them. */
+.ios-menu {
+  transform-origin: var(--transform-origin);
+  transition:
+    transform 0.38s var(--ease-spring),
+    opacity 0.18s ease,
+    filter 0.25s ease;
+}
+.ios-menu[data-starting-style],
+.ios-menu[data-ending-style] {
+  transform: scale(0.6);
+  opacity: 0;
+  filter: blur(6px);
+}
+
+/*
+ * No layout may change on focus. A rule here used to zero --safe-bottom
+ * while a field was focused; it shifted the page by the home-indicator inset
+ * while the keyboard was still animating in, after iOS had already worked out
+ * where to scroll — so the first focus left the field under the keyboard.
+ */
+
+/* Long-press targets must not pop the iOS callout or select text. */
+.no-callout {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
