@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server";
 import { redeemRefreshToken } from "@/lib/refresh-tokens";
 import { recordAttempt } from "@/lib/auth-attempts";
 import { secureCookiesEnabled } from "@/lib/cookie-scope";
+import { safeNext } from "@/lib/safe-next";
 import {
   REFRESH_COOKIE,
   REFRESH_COOKIE_SECURE,
@@ -18,19 +19,7 @@ import {
  * handlers, actions and the proxy may set cookies — and renewal is precisely
  * the act of replacing two of them. The user sees a redirect they never notice;
  * nothing is asked of them.
- *
- * `next` is confined to a path on this site. Accepting a full URL here would
- * turn renewal into an open redirect, and one that hands over a fresh session
- * on the way out.
  */
-function safeNext(raw: string | null): string {
-  if (raw === null) return "/";
-  // Must be a single-slash-rooted path: "//evil.com" is protocol-relative and
-  // would leave the site.
-  if (!raw.startsWith("/") || raw.startsWith("//")) return "/";
-  return raw;
-}
-
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const secure = await secureCookiesEnabled();
   const cookieName = secure ? REFRESH_COOKIE_SECURE : REFRESH_COOKIE;
