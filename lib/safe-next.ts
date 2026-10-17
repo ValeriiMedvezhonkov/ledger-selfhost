@@ -22,18 +22,27 @@ function hasUnsafeCharacter(value: string): boolean {
   return false;
 }
 
+/** The value resolved against the placeholder, or null if it leaves it. */
+function onSite(value: string): URL | null {
+  try {
+    const url = new URL(value, PLACEHOLDER);
+    return url.origin === PLACEHOLDER ? url : null;
+  } catch {
+    return null;
+  }
+}
+
 export function safeNext(raw: string | null): string {
   if (raw === null || !raw.startsWith("/") || hasUnsafeCharacter(raw)) {
     return "/";
   }
 
-  let url: URL;
-  try {
-    url = new URL(raw, PLACEHOLDER);
-  } catch {
-    return "/";
-  }
+  const url = onSite(raw);
+  if (url === null) return "/";
 
-  if (url.origin !== PLACEHOLDER) return "/";
-  return url.pathname + url.search + url.hash;
+  // Parsing can itself produce a protocol-relative path: dot segments
+  // collapse "/.//evil.com" into "//evil.com". So the result is checked the
+  // way the caller will use it, by resolving it once more.
+  const path = url.pathname + url.search + url.hash;
+  return onSite(path) === null ? "/" : path;
 }

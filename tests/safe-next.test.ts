@@ -28,8 +28,18 @@ describe("safeNext", () => {
     // Tabs and newlines are stripped while parsing, closing up "/\t/".
     "/\t/evil.example",
     "/\n/evil.example",
+    // Dot segments collapse into "//" during parsing, after any prefix check.
+    "/.//evil.example",
+    "/..//evil.example",
+    "/x/..//evil.example",
+    "/%2e//evil.example",
     "relative/path",
   ])("never leaves the site for %j", (raw) => {
     expect(landing(raw).origin).toBe("https://ledger.example.com");
+  });
+
+  it("falls back instead of throwing when parsing leaves no host", () => {
+    // Collapses to "///", which is not a URL at all once resolved again.
+    expect(safeNext("/.///")).toBe("/");
   });
 });
